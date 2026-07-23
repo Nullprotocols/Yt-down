@@ -251,14 +251,23 @@ app.post('/api/download', async (req, res) => {
 
   } catch (error) {
     console.error('[Download] Error:', error.message);
+    // Log external error details for debugging
+    if (error.response) {
+      console.error('[Download] External API Status:', error.response.status);
+      console.error('[Download] External API Data:', error.response.data);
+    }
     await cleanupFiles(videoFile, audioFile, outputFile);
 
     if (error.code === 'ECONNABORTED') {
-      return res.status(504).json({ error: 'Download or API request timed out' });
+      return res.status(504).json({ error: 'Request to external API timed out. Please try again.' });
     }
 
     if (error.response) {
-      return res.status(error.response.status).json({ error: 'External API error' });
+      // Return the actual error from the external API
+      const externalMsg = error.response.data?.message || error.response.statusText || 'Unknown external error';
+      return res.status(error.response.status).json({ 
+        error: `External API error (${error.response.status}): ${externalMsg}` 
+      });
     }
 
     if (!res.headersSent) {
@@ -287,7 +296,4 @@ if (YT_API_URL) {
       .catch(() => { /* ignore errors */ });
   }, API_PING_INTERVAL);
   console.log('[KeepAlive] External API ping scheduled every 5 minutes.');
-}
-
-// 2. (Optional) Self-ping via frontend is already implemented in script.js
-//    The frontend will send /keep-alive every 5 minutes.
+                                     }
