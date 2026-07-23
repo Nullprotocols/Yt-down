@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouTube Downloader</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎬 YouTube Downloader</h1>
+      <p>Download any video in high quality with audio</p>
+    </header>
+
+    <main>
+      <!-- Input Section -->
+      <section class="input-section">
+        <div class="input-wrapper">
+          <input
+            type="text"
+            id="urlInput"
+            placeholder="Paste YouTube URL here..."
+            autofocus
+          />
+          <button id="analyzeBtn">Analyze</button>
+        </div>
+        <div id="loader" class="loader hidden">
+          <div class="spinner"></div>
+          <span>Analyzing...</span>
+        </div>
+      </section>
+
+      <!-- Results Section -->
+      <section id="results" class="results hidden">
+        <div class="video-info">
+          <div class="thumbnail-wrapper">
+            <img id="thumbnail" src="" alt="Thumbnail" />
+          </div>
+          <div class="details">
+            <h2 id="videoTitle">Title</h2>
+            <div class="meta">
+              <span id="channelName">Channel</span>
+              <span id="duration">Duration</span>
+              <span id="views">Views</span>
+              <span id="likes">Likes</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="qualities">
+          <h3>Available Qualities</h3>
+          <div id="qualityCards" class="quality-grid">
+            <!-- Cards will be injected by JS -->
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2026 YouTube Downloader</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
