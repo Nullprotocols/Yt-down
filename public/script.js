@@ -1,9 +1,3 @@
-/**
- * Frontend logic for YouTube Downloader
- * Pure Vanilla JavaScript - No frameworks
- */
-
-// DOM Element References
 const urlInput = document.getElementById('urlInput');
 const analyzeBtn = document.getElementById('analyzeBtn');
 const loader = document.getElementById('loader');
@@ -15,27 +9,13 @@ const duration = document.getElementById('duration');
 const views = document.getElementById('views');
 const likes = document.getElementById('likes');
 const qualityCards = document.getElementById('qualityCards');
+const downloadOverlay = document.getElementById('downloadOverlay');
 
-/**
- * Helper: Format numbers with commas (e.g., 1000000 -> 1,000,000)
- */
 function formatNumber(num) {
   if (!num && num !== 0) return '0';
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-/**
- * Helper: Format file size from bytes to MB
- */
-function formatSize(bytes) {
-  if (!bytes) return 'Unknown';
-  const mb = bytes / (1024 * 1024);
-  return mb.toFixed(1) + ' MB';
-}
-
-/**
- * Toggle loading state: Shows/hides loader, disables/enables button
- */
 function setLoading(state) {
   if (state) {
     loader.classList.remove('hidden');
@@ -49,18 +29,11 @@ function setLoading(state) {
   }
 }
 
-/**
- * Display error message using alert
- */
 function showError(message) {
   alert('Error: ' + message);
   setLoading(false);
 }
 
-/**
- * Handle the "Analyze" button click
- * Fetches video info from backend and renders UI
- */
 async function handleAnalyze() {
   const url = urlInput.value.trim();
   if (!url) {
@@ -83,7 +56,6 @@ async function handleAnalyze() {
       throw new Error(data.error || 'Failed to fetch video info');
     }
 
-    // Populate Video Information
     thumbnail.src = data.thumbnail || '';
     videoTitle.textContent = data.title || 'Untitled';
     channelName.textContent = data.channelName || 'Unknown Channel';
@@ -91,7 +63,6 @@ async function handleAnalyze() {
     views.textContent = formatNumber(data.views) + ' views';
     likes.textContent = '❤️ ' + formatNumber(data.likes);
 
-    // Render Quality Cards
     qualityCards.innerHTML = '';
     if (data.qualities && data.qualities.length > 0) {
       data.qualities.forEach((q) => {
@@ -105,7 +76,6 @@ async function handleAnalyze() {
         qualityCards.appendChild(card);
       });
 
-      // Attach download event listeners to all new buttons
       document.querySelectorAll('.download-btn').forEach((btn) => {
         btn.addEventListener('click', handleDownload);
       });
@@ -113,7 +83,6 @@ async function handleAnalyze() {
       qualityCards.innerHTML = '<p style="color:#aaa;">No video qualities available for this video.</p>';
     }
 
-    // Show results section
     results.classList.remove('hidden');
   } catch (error) {
     showError(error.message);
@@ -122,18 +91,13 @@ async function handleAnalyze() {
   }
 }
 
-/**
- * Handle the "Download" button click inside quality cards
- * Triggers backend download and merges video+audio
- */
 async function handleDownload(event) {
   const btn = event.target;
   const quality = btn.dataset.quality;
   const url = urlInput.value.trim();
 
-  // Disable button and change text
   btn.disabled = true;
-  btn.textContent = 'Downloading...';
+  downloadOverlay.classList.remove('hidden');
 
   try {
     const response = await fetch('/api/download', {
@@ -142,12 +106,13 @@ async function handleDownload(event) {
       body: JSON.stringify({ url, quality }),
     });
 
+    downloadOverlay.classList.add('hidden');
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || 'Download failed');
     }
 
-    // Convert response to a Blob and trigger browser download
     const blob = await response.blob();
     const downloadUrl = window.URL.createObjectURL(blob);
     
@@ -158,10 +123,8 @@ async function handleDownload(event) {
     a.click();
     document.body.removeChild(a);
     
-    // Clean up the object URL
     window.URL.revokeObjectURL(downloadUrl);
 
-    // Update button state
     btn.textContent = 'Downloaded!';
     setTimeout(() => {
       btn.textContent = 'Download';
@@ -169,20 +132,15 @@ async function handleDownload(event) {
     }, 3000);
 
   } catch (error) {
+    downloadOverlay.classList.add('hidden');
     alert('Download error: ' + error.message);
     btn.textContent = 'Download';
     btn.disabled = false;
   }
 }
 
-// ------------------------------------------------------------------
-// Event Listeners
-// ------------------------------------------------------------------
-
-// Click event for Analyze button
 analyzeBtn.addEventListener('click', handleAnalyze);
 
-// Keyboard Enter event on URL input (triggers Analyze)
 urlInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
@@ -190,16 +148,12 @@ urlInput.addEventListener('keydown', (e) => {
   }
 });
 
-// Auto-focus the input field when page loads
 window.addEventListener('load', () => {
   urlInput.focus();
 });
 
-// ------------------------------------------------------------------
-// KEEP ALIVE: Ping server every 5 minutes to prevent Render sleep
-// ------------------------------------------------------------------
 setInterval(() => {
   fetch('/keep-alive')
     .then(() => console.log('[KeepAlive] Pinged server successfully'))
-    .catch(() => { /* Silently ignore ping failures */ });
+    .catch(() => { });
 }, 5 * 60 * 1000);
