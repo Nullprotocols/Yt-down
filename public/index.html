@@ -14,15 +14,9 @@
     </header>
 
     <main>
-      <!-- Input Section -->
       <section class="input-section">
         <div class="input-wrapper">
-          <input
-            type="text"
-            id="urlInput"
-            placeholder="Paste YouTube URL here..."
-            autofocus
-          />
+          <input type="text" id="urlInput" placeholder="Paste YouTube URL here..." autofocus />
           <button id="analyzeBtn">Analyze</button>
         </div>
         <div id="loader" class="loader hidden">
@@ -31,7 +25,6 @@
         </div>
       </section>
 
-      <!-- Results Section -->
       <section id="results" class="results hidden">
         <div class="video-info">
           <div class="thumbnail-wrapper">
@@ -50,9 +43,7 @@
 
         <div class="qualities">
           <h3>Available Qualities</h3>
-          <div id="qualityCards" class="quality-grid">
-            <!-- Cards will be injected by JS -->
-          </div>
+          <div id="qualityCards" class="quality-grid"></div>
         </div>
       </section>
     </main>
@@ -60,6 +51,15 @@
     <footer>
       <p>&copy; 2026 YouTube Downloader</p>
     </footer>
+  </div>
+
+  <div id="downloadOverlay" class="download-overlay hidden">
+    <div class="overlay-content">
+      <div class="overlay-icon">⏳</div>
+      <div class="loader-bar"></div>
+      <p class="overlay-text">Merging Video & Audio... Please wait</p>
+      <p class="overlay-subtext">This may take 1-2 minutes depending on video size.</p>
+    </div>
   </div>
 
   <script src="script.js"></script>
